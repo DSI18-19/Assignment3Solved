@@ -1,3 +1,14 @@
+# Assignment 4: Asynchronous Microservices
+This repository contains the code to solve the assignment 3. On top of this code you can solve the fourth assgnment.
+
+In this assignment we are going to delete a user and all his/her notes. To do so, once the User service erases the note
+from the database, it sends a message telling that such user has been deleted. The message's body should contain at least the
+user's ID. The Notes service should be hearing this sort of messages (through a channel) and delete all the user's notes from its database when
+it receiving such a message.
+
+At the following repository https://github.com/DSI18-19/publisherSubscriberRabbit you'll find an example of services sending and receiving messages.
+
+
 # Assignment 3: microservices 
 
 ## Base Code
