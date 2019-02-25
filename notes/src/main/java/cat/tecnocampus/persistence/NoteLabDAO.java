@@ -18,13 +18,16 @@ import java.util.List;
 public class NoteLabDAO {
     private JdbcTemplate jdbcTemplate;
 
-    private final String INSERT_NOTE = "insert into note_lab (title, content, date_creation, date_edit, owner) values(?, ?, ?, ?, ?)";
+    private final String INSERT_NOTE = "insert into note_lab (title, content, date_creation, date_edit, owner, userChecked) values(?, ?, ?, ?, ?, ?)";
     private final String FIND_ALL = "select * from note_lab";
     private final String FIND_BY_USERNAME = "select * from note_lab where owner = ? order by date_edit desc";
     private final String FIND_BY_ID = "select * from note_lab where id = ?";
+    private final String FIND_ALL_CLIENT_DOWN = "select * from note_lab where userChecked = 3";
     private final String UPDATE_NOTE = "update note_lab set title = ?, content = ?, date_edit = ? where id = ?";
     private final String DELETE_NOTE = "delete note_lab where id = ? AND owner = ?";
     private final String EXISTS_NOTE = "select count(*) from note_lab where title = ? and date_creation = ?";
+    private final String SET_OWNER_EXIST = "update note_lab set userChecked = 1 WHERE id = ?";
+
 
     private RowMapper<NoteLab> mapper = (resultSet, i) -> {
         NoteLab noteLab = new NoteLab.NoteLabBuilder(resultSet.getString("title"), resultSet.getString("content"), resultSet.getString("owner"))
@@ -52,14 +55,15 @@ public class NoteLabDAO {
     }
 
 
-    public NoteLab insert(NoteLab noteLab, String userLab) {
+    public NoteLab insert(NoteLab noteLab, String userLab, int existsUser) {
         jdbcTemplate.update(
                 INSERT_NOTE,
                 noteLab.getTitle(),
                 noteLab.getContent(),
                 Timestamp.valueOf(noteLab.getDateCreation()),
                 Timestamp.valueOf(noteLab.getDateEdit()),
-                userLab);
+                userLab,
+                existsUser);
         noteLab.setId(jdbcTemplate.queryForObject( "select last_insert_id()" , Long.class));
         noteLab.setOwner(userLab);
         return noteLab;
@@ -79,4 +83,14 @@ public class NoteLabDAO {
                 EXISTS_NOTE, Integer.class, note.getTitle(), Timestamp.valueOf(note.getDateCreation()));
         return countOfNotes > 0;
     }
+
+    public List<NoteLab> findAllnotCheckedOwner() {
+        return jdbcTemplate.query(FIND_ALL_CLIENT_DOWN, mapper);
+    }
+
+    public int setOwnerExists(Long id) {
+        return jdbcTemplate.update(SET_OWNER_EXIST, id);
+    }
+
+
 }

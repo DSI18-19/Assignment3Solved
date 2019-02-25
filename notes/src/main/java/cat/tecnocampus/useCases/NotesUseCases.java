@@ -2,6 +2,7 @@ package cat.tecnocampus.useCases;
 
 import cat.tecnocampus.domain.NoteLab;
 import cat.tecnocampus.persistence.NoteLabDAO;
+import cat.tecnocampus.userClient.UserClient;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -11,28 +12,27 @@ import java.util.List;
 public class NotesUseCases {
 
     private final NoteLabDAO noteLabDAO;
+    private final UserClient userClient;
 
-    public NotesUseCases(NoteLabDAO noteLabDAO) {
+    public NotesUseCases(NoteLabDAO noteLabDAO, UserClient userClient) {
         this.noteLabDAO = noteLabDAO;
+        this.userClient = userClient;
     }
 
     public NoteLab createUserNote(String username, NoteLab noteLab) {
         noteLab.setDateCreation(LocalDateTime.now());
         noteLab.setDateEdit(LocalDateTime.now());
 
-        return addUserNote(username, noteLab);
+        int existsUser = userClient.userExists(username);
+
+        System.out.println("in NotesUseCases. Exists user: " + existsUser);
+
+        if (existsUser == UserClient.USER_EXISTS || existsUser == UserClient.CLIENT_DOWN)
+            return noteLabDAO.insert(noteLab, username, existsUser);
+        else return null;
     }
 
-    private NoteLab addUserNote(String username, NoteLab noteLab) {
-        return noteLabDAO.insert(noteLab, username);
-    }
-
-    public NoteLab addUserNote(String owner, String title, String contents) {
-        LocalDateTime now = LocalDateTime.now();
-        NoteLab note = new NoteLab.NoteLabBuilder(title, contents, owner).dateEdit(now).dateCreation(now).build();
-        noteLabDAO.insert(note, owner);
-        return note;
-    }
+    public List<NoteLab> getAllnotCheckedOwner(){return noteLabDAO.findAllnotCheckedOwner();}
 
     public NoteLab updateUserNote(String owner, NoteLab note, Long id) {
         NoteLab oldNote = noteLabDAO.findById(id);
@@ -57,5 +57,8 @@ public class NotesUseCases {
     public NoteLab findById(Long id) {
         return this.noteLabDAO.findById(id);
     }
+
+    public void setOwnerExists(long id){ noteLabDAO.setOwnerExists(id);}
+
 
 }

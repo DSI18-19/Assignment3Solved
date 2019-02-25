@@ -35,4 +35,10 @@ public class UserRESTController {
         return user;
     }
 
+    @GetMapping(value = "/userExists/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public boolean existsUser(@PathVariable String username) {
+        return userUseCases.existUser(username);
+    }
+
+
 }

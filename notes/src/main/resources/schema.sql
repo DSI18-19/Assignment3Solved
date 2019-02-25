@@ -5,5 +5,6 @@ CREATE TABLE note_lab (
   content VARCHAR (255),
   date_creation TIMESTAMP ,
   date_edit TIMESTAMP ,
-  owner VARCHAR (55)
+  owner VARCHAR (55),
+  userChecked INT (1)
 );

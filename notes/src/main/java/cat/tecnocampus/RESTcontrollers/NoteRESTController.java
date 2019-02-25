@@ -38,6 +38,7 @@ public class NoteRESTController {
     @PostMapping(value = "/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
     public NoteLab createNote(@RequestBody @Valid NoteLab note, @PathVariable String username) {
 
+        System.out.println("going to create note: " + username);
         NoteLab newNote = this.notesUseCases.createUserNote(username, note);
 
         return newNote;
